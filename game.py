@@ -1,0 +1,74 @@
+import pygame
+
+# Intitalize the game
+pygame.init()
+
+# Set the window attributes
+screen_height, screen_width = 500, 500
+screen = pygame.display.set_mode((screen_height, screen_width))
+pygame.display.set_caption("Flappy Gato")
+
+# Set the background
+background = pygame.image.load('images/sky.jpg')
+background = pygame.transform.scale(background, (screen_height, screen_width))
+
+# Set the grass
+grass = pygame.image.load("images/grass.png")
+grass_height = 75
+grass = pygame.transform.scale(grass, (screen_width, grass_height))
+
+# Set the character
+character = pygame.image.load("images/cat.png")
+character = pygame.transform.scale(character, (75, 75))
+character_rect = character.get_rect()
+character_rect.center = (screen_width // 2, screen_height // 2)
+
+
+velocity = 0
+gravity = 0.5
+jump_strength = -10
+
+font = pygame.font.SysFont(None, 60)
+game_over = False
+
+clock = pygame.time.Clock();
+
+running = True
+while running:
+    clock.tick(60)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.KEYDOWN and not game_over:
+            if event.key == pygame.K_SPACE:
+                velocity = jump_strength
+    
+    if not game_over:
+        # Apply gravity to the velocity
+        velocity += gravity
+        # Update position of the player
+        character_rect.y += velocity
+
+        # Stops the game when the player touches the grass
+        if character_rect.bottom > screen_height - grass_height:
+           character_rect.bottom = screen_height - grass_height
+           game_over = True
+        if character_rect.top <= 0:
+            character_rect.top = 0
+            game_over = True
+
+        screen.blit(background, (0, 0))
+        screen.blit(grass, (0, screen_height - grass_height))
+        screen.blit(character, character_rect)
+    if game_over:
+        game_over_text = font.render("Game over", True, (255, 0, 0))
+        text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2))
+        screen.blit(game_over_text, text_rect)
+    else:
+        screen.blit(character, character_rect)
+
+    pygame.display.flip()
+
+pygame.quit()
